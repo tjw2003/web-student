@@ -37,6 +37,6 @@ func InitializeTables() {
 }
 
 func init() {
-	DB = database.OpenDatabase()
+	DB = database.Default()
 	InitializeTables()
 }

@@ -15,7 +15,8 @@ type DBHelper struct {
 	DB *sql.DB
 }
 
-func OpenDatabase() *DBHelper {
+// Default 使用默认的连接参数连接数据库（用户名为 postgres，地址及端口为 localhost:5432）并返回一个 DBHelper
+func Default() *DBHelper {
 	db, err := sql.Open("pgx", "postgres://postgres:@localhost:5432/postgres")
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
@@ -31,33 +32,37 @@ func (db *DBHelper) CreateTable(tableName string, tableDefs ...string) error {
 	return err
 }
 
-func (db *DBHelper) InsertUser(user models.User) error {
-	_, err := db.DB.Exec("INSERT INTO users(username,password) VALUES ($1,$2)", user.Username, user.Password)
-	if err != nil {
-		log.Println(err)
-		return err
+// Insert 使用 target 作为 INTO 与 VALUES 中间的部分，values 中的每一项作为值的每一项插入记录
+func (db *DBHelper) Insert(target string, values ...any) (int64, error) {
+	valuesPlaceHolders := []string{}
+	for i := 1; i <= len(values); i++ {
+		valuesPlaceHolders = append(valuesPlaceHolders, fmt.Sprintf("$%v", i))
 	}
-	return nil
+	res, err := db.DB.Exec(
+		fmt.Sprintf("INSERT INTO %v VALUES (%v)", target, strings.Join(valuesPlaceHolders, ", ")), values...)
+	if err != nil {
+		return -1, err
+	}
+	lastInsertId, err := res.LastInsertId()
+	if err != nil {
+		return -1, err
+	}
+	return lastInsertId, err
 }
 
-func (db *DBHelper) InsertCourse(course models.Course) error {
-	res, err := db.DB.Exec("INSERT INTO lesson(coursename,credit,teacher) VALUES ($1,$2,$3)", course.Name, course.Credit, course.Teacher)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	log.Println(res.LastInsertId())
-	return nil
+func (db *DBHelper) InsertUser(user models.User) (int64, error) {
+	id, err := db.Insert("users(username,password)", user.Username, user.Password)
+	return id, err
 }
 
-func (db *DBHelper) InsertSelectCourse(username string, course models.Course) error {
-	res, err := db.DB.Exec("INSERT INTO selectcourse(username,coursename,credit,teacher) VALUES ($1,$2,$3,$4)", username, course.Name, course.Credit, course.Teacher)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	log.Println(res.LastInsertId())
-	return nil
+func (db *DBHelper) InsertCourse(course models.Course) (int64, error) {
+	id, err := db.Insert("lessons(name,credit,teacher)", course.Name, course.Credit, course.Teacher)
+	return id, err
+}
+
+func (db *DBHelper) InsertSelectCourse(userId int, course_id int) (int64, error) {
+	id, err := db.Insert("select_courses(user_id, course_id)", userId, course_id)
+	return id, err
 }
 
 func (db *DBHelper) QueryPassword(username string) (string, error) {
