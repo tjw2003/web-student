@@ -1,0 +1,33 @@
+{
+	"name": "frontend",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
+		"go": "pnpm build && cd .. && go run ."
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^2.0.0",
+		"@sveltejs/adapter-static": "^2.0.1",
+		"@sveltejs/kit": "^1.5.0",
+		"autoprefixer": "^10.4.14",
+		"postcss": "^8.4.21",
+		"svelte": "^3.54.0",
+		"svelte-check": "^3.0.1",
+		"tailwindcss": "^3.3.1",
+		"typescript": "^5.0.0",
+		"vite": "^4.2.0"
+	},
+	"type": "module",
+	"dependencies": {
+		"@popperjs/core": "^2.11.7",
+		"axios": "^1.3.5",
+		"classnames": "^2.3.2",
+		"flowbite": "^1.6.5",
+		"flowbite-svelte": "^0.34.9"
+	}
+}
