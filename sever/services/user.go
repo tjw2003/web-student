@@ -3,7 +3,7 @@ package services
 import (
 	"errors"
 	"log"
-	"server/bootstrap"
+	"server/database"
 	"server/jwt"
 	"server/models"
 
@@ -18,7 +18,7 @@ type RegisterService struct { //`form:"username"`进行绑定
 
 func (s *RegisterService) Handle(c *gin.Context) (any, error) {
 	// TODO: Register
-	isUserExist, err := bootstrap.DB.IsUserExist(s.Username)
+	isUserExist, err := database.DB.IsUserExist(s.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func (s *RegisterService) Handle(c *gin.Context) (any, error) {
 		log.Printf("[Register]: User %v already exists.\n", s.Username)
 		return nil, errors.New("User already exists.")
 	}
-	err = bootstrap.DB.InsertUser(models.User{
+	_, err = database.InsertUser(models.User{
 		Username: s.Username,
 		Password: s.Password,
 	})
@@ -47,7 +47,7 @@ type Login struct {
 func (s *Login) Handle(c *gin.Context) (any, error) {
 	log.Printf("[login/Handle]: %v %v\n", s.Username, s.Password)
 	//user := &User{}
-	isUserExist, err := bootstrap.DB.IsUserExist(s.Username)
+	isUserExist, err := database.DB.IsUserExist(s.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +57,8 @@ func (s *Login) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("User not exist")
 	}
 
-	password, _ := bootstrap.DB.QueryPassword(s.Username)
-	id, _ := bootstrap.DB.QueryID(s.Username)
+	password, _ := database.DB.QueryPassword(s.Username)
+	id, _ := database.DB.QueryID(s.Username)
 
 	if password != s.Password {
 		log.Printf("[Login]:password is wrong\n")

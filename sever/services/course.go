@@ -2,7 +2,7 @@ package services
 
 import (
 	"log"
-	"server/bootstrap"
+	"server/database"
 	"server/models"
 
 	"github.com/gin-gonic/gin"
@@ -10,16 +10,16 @@ import (
 
 // Create Course
 type CreateCourseService struct {
-	Coursename string `form:"coursename"`
-	Credit     string `form:"credit"`
-	Teacher    string `form:"teacher"`
+	Name    string `form:"name"`
+	Credit  string `form:"credit"`
+	Teacher string `form:"teacher"`
 }
 
 func (s *CreateCourseService) Handle(c *gin.Context) (any, error) {
 	log.Println("Course Handle")
 
-	err := bootstrap.DB.InsertCourse(models.Course{
-		Name:    s.Coursename,
+	_, err := database.InsertCourse(models.Course{
+		Name:    s.Name,
 		Credit:  s.Credit,
 		Teacher: s.Teacher,
 	})
@@ -29,11 +29,10 @@ func (s *CreateCourseService) Handle(c *gin.Context) (any, error) {
 	return nil, nil
 }
 
-
 type GetCoursesService struct{}
 
 func (s *GetCoursesService) Handle(c *gin.Context) (any, error) {
-	courses, err := bootstrap.DB.QueryAllCourse()
+	courses, err := database.DB.QueryAllCourse()
 	if err != nil {
 		log.Printf("[GetCoursesService]: Error %v\n", err)
 		return nil, err
