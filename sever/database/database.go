@@ -3,8 +3,10 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"server/models"
+	"strings"
 
 	_ "github.com/jackc/pgx/v5/stdlib" //数据库驱动
 )
@@ -22,46 +24,11 @@ func OpenDatabase() *DBHelper {
 	return &DBHelper{db}
 }
 
-func (db *DBHelper) CreateUserTable() {
-	result, err := db.DB.Exec("CREATE TABLE IF NOT EXISTS users (id SERIAL,username VARCHAR(20) NOT NULL UNIQUE,password VARCHAR(20) NOT NULL)")
-	if err != nil {
-		log.Println(err)
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		log.Println(err)
-	}
-	if rows != 1 {
-		log.Printf("expected to affect 1 row, affected %d\n", rows)
-	}
-}
-
-func (db *DBHelper) CreateLessonTable() {
-	result, err := db.DB.Exec("CREATE TABLE IF NOT EXISTS lesson (id SERIAL,coursename VARCHAR(20) NOT NULL,credit VARCHAR(20) NOT NULL,teacher VARCHAR(20) NOT NULL)")
-	if err != nil {
-		log.Println(err)
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		log.Println(err)
-	}
-	if rows != 1 {
-		log.Printf("expected to affect 1 row, affected %d\n", rows)
-	}
-}
-
-func (db *DBHelper) CreateSelectCourseTable() {
-	result, err := db.DB.Exec("CREATE TABLE IF NOT EXISTS selectcourse (id SERIAL,username Varchar(20),coursename VARCHAR(20) NOT NULL,credit VARCHAR(20) NOT NULL,teacher VARCHAR(20) NOT NULL)")
-	if err != nil {
-		log.Println(err)
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		log.Println(err)
-	}
-	if rows != 1 {
-		log.Printf("expected to affect 1 row, affected %d\n", rows)
-	}
+// CreateTable 使用 tableName 作为表名，tableDef 中的每一项作为 SQL 语句中括号中的每一项创建一个表
+func (db *DBHelper) CreateTable(tableName string, tableDefs ...string) error {
+	_, err := db.DB.Exec(
+		fmt.Sprintf("CREATE TABLE IF NOT EXISTS %v (%v)", tableName, strings.Join(tableDefs, ", ")))
+	return err
 }
 
 func (db *DBHelper) InsertUser(user models.User) error {
@@ -83,8 +50,8 @@ func (db *DBHelper) InsertCourse(course models.Course) error {
 	return nil
 }
 
-func (db *DBHelper) InsertSelectCourse(username string,course models.Course) error {
-	res, err := db.DB.Exec("INSERT INTO selectcourse(username,coursename,credit,teacher) VALUES ($1,$2,$3,$4)",username, course.Name, course.Credit, course.Teacher)
+func (db *DBHelper) InsertSelectCourse(username string, course models.Course) error {
+	res, err := db.DB.Exec("INSERT INTO selectcourse(username,coursename,credit,teacher) VALUES ($1,$2,$3,$4)", username, course.Name, course.Credit, course.Teacher)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -141,7 +108,7 @@ func (db *DBHelper) QueryAllCourse() ([]models.Course, error) {
 			return nil, nil
 		}
 
-		course.ID = id;
+		course.ID = id
 		course.Name = coursename
 		course.Credit = credit
 		course.Teacher = teacher
@@ -160,10 +127,11 @@ func (db *DBHelper) QueryAllCourse() ([]models.Course, error) {
 
 	return courses, nil
 }
+
 // WHERE username = $1",username
 
 func (db *DBHelper) QuerySelectCourse(username string) ([]models.Course, error) {
-	rows, _ := db.DB.Query("SELECT id,coursename,credit,teacher FROM  selectcourse WHERE username = $1",username)
+	rows, _ := db.DB.Query("SELECT id,coursename,credit,teacher FROM  selectcourse WHERE username = $1", username)
 	courses := make([]models.Course, 0)
 
 	for rows.Next() {
@@ -178,7 +146,7 @@ func (db *DBHelper) QuerySelectCourse(username string) ([]models.Course, error) 
 			return nil, nil
 		}
 
-		course.ID = id;
+		course.ID = id
 		course.Name = coursename
 		course.Credit = credit
 		course.Teacher = teacher
