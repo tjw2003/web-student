@@ -1,9 +1,8 @@
 package database
 
 import (
-"server/models"
 	"log"
-	"server/internal/database"
+	"web-student/internal/database"
 )
 
 // DB is the DBHelper
@@ -19,7 +18,7 @@ func InitializeTables() {
 	if err != nil {
 		log.Panicln("Failed to create table users")
 	}
-	err = DB.CreateTable("lessons",
+	err = DB.CreateTable("courses",
 		"id SERIAL",
 		"name TEXT NOT NULL",
 		"credit TEXT NOT NULL",
@@ -44,15 +43,3 @@ func init() {
 }
 
 //--- 数据库操作 ---
-
-func InsertUser(user models.User) (int64, error) {
-	return DB.Insert("users(username,password)", user.Username, user.Password)
-}
-
-func InsertCourse(course models.Course) (int64, error) {
-	return DB.Insert("lessons(name,credit,teacher)", course.Name, course.Credit, course.Teacher)
-}
-
-func InsertSelectCourse(userId int, course_id int) (int64, error) {
-	return DB.Insert("select_courses(user_id, course_id)", userId, course_id)
-}

@@ -1,12 +1,12 @@
 package main
 
 import (
-	middlewars "server/middlewares"
+	"web-student/server/middlewares"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
-	"server/services"
+	"web-student/server/services"
 )
 
 func InitRouter() *gin.Engine {
@@ -37,10 +37,10 @@ func InitRouter() *gin.Engine {
 		{
 			course := auth.Group("course")
 			{
-				course.POST("createCourse", services.Handler(&services.CreateCourseService{}))
+				course.POST("", services.Handler(&services.CreateCourseService{}))
 				course.GET("",services.Handler(&services.GetCoursesService{}))
-				course.POST("selectCourse",services.Handler(&services.SelectCoursesService{}))
-				course.GET("getselectCourse",services.Handler(&services.GetSelectCoursesService{}))
+				course.POST("select",services.Handler(&services.SelectCourseService{}))
+				course.GET("select",services.Handler(&services.GetSelectedCoursesService{}))
 			}
 		}
 

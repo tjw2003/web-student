@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"log"
 	"strings"
 	"time"
 
@@ -12,14 +11,14 @@ import (
 
 var signedString = []byte("prj")
 type MyCustomClaims struct {
-    Userid    int
+    UserId    int
 	Username string
 	jwt.RegisteredClaims
 }
 
-func CreateToken(userid int, username string) (string, error) {
+func CreateToken(userId int, username string) (string, error) {
 	return jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), MyCustomClaims{
-        userid,
+        userId,
 		username,
         jwt.RegisteredClaims{
 		},
@@ -44,16 +43,3 @@ func DecodeTokenStr(tokenStr string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func MustGetClaims(c *gin.Context) (*MyCustomClaims, error) {
-	log.Println("[MustGetClaims]")
-	tokenStr := GetTokenStr(c)
-	log.Printf("[MustGetClaims]: TokenStr: %v\n", tokenStr)
-
-	token, err := DecodeTokenStr(tokenStr)
-    if err != nil {
-		return nil, err
-    }
-	log.Printf("[MustGetClaims]: Token: %v\n", token)
-
-	return token.Claims.(*MyCustomClaims), nil
-}

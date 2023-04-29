@@ -3,7 +3,8 @@ package middlewars
 import (
 	"log"
 	"net/http"
-	"server/jwt"
+	"web-student/internal/serializer"
+	"web-student/internal/jwt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -11,14 +12,25 @@ import (
 
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		claims, err := jwt.MustGetClaims(c)
+		
+	log.Println("[middlewares/JWTAuth]")
+		tokenStr := jwt.GetTokenStr(c)
+		log.Printf("[middlewares/JWTAuth]: TokenStr: %v\n", tokenStr)
+
+		token, err := jwt.DecodeTokenStr(tokenStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, "token invalid")
-			c.Abort()
+			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
+			return
+		}
+		log.Printf("[middlewares/JWTAuth]: Token: %v\n", token)
+
+		claims := token.Claims.(*jwt.MyCustomClaims)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
 			return
 		}
 		log.Printf("[middlewares/JWTAuth]: claim: %v\n", claims)
-		c.Set("id", claims.Userid)
+		c.Set("id", claims.UserId)
 		c.Set("username", claims.Username)
 		c.Next()
 	}

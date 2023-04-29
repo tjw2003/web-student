@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"web-student/internal/serializer"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +19,7 @@ func Handler(s Service) gin.HandlerFunc {
 		// First bind the JSON to the service
 		err := c.ShouldBindJSON(s)
 		if err != nil && err != io.EOF {
-			c.JSON(http.StatusBadRequest, ErrorResponse(err))
+			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
 			return
 		}
 
@@ -28,36 +29,10 @@ func Handler(s Service) gin.HandlerFunc {
 		res, err := s.Handle(c)
 		if err != nil {
 			log.Println(err.Error())
-			c.JSON(http.StatusBadRequest, ErrorResponse(err))
+			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
 		} else {
 			// log.Println("StatusOK")
-			c.JSON(http.StatusOK, Response(res))
+			c.JSON(http.StatusOK, serializer.Response(res))
 		}
-	}
-}
-
-type errorResponse struct {
-	ErrorStr string `json:"error"`
-}
-
-func ErrorResponse(err error) errorResponse {
-	if err == nil {
-		return errorResponse{}
-	}
-	return errorResponse{
-		ErrorStr: err.Error(),
-	}
-}
-
-type response struct {
-	Data any `json:"data,omitempty"`
-}
-
-func Response(obj any) response {
-	if obj == nil {
-		return response{}
-	}
-	return response{
-		Data: obj,
 	}
 }

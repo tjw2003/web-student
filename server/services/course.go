@@ -2,8 +2,8 @@ package services
 
 import (
 	"log"
-	"server/database"
-	"server/models"
+	"web-student/server/database"
+	"web-student/server/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,7 +32,7 @@ func (s *CreateCourseService) Handle(c *gin.Context) (any, error) {
 type GetCoursesService struct{}
 
 func (s *GetCoursesService) Handle(c *gin.Context) (any, error) {
-	courses, err := database.DB.QueryAllCourse()
+	courses, err := database.GetCourses()
 	if err != nil {
 		log.Printf("[GetCoursesService]: Error %v\n", err)
 		return nil, err

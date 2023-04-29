@@ -3,9 +3,9 @@ package services
 import (
 	"errors"
 	"log"
-	"server/database"
-	"server/jwt"
-	"server/models"
+	"web-student/internal/jwt"
+	"web-student/server/models"
+	"web-student/server/database"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +18,7 @@ type RegisterService struct { //`form:"username"`进行绑定
 
 func (s *RegisterService) Handle(c *gin.Context) (any, error) {
 	// TODO: Register
-	isUserExist, err := database.DB.IsUserExist(s.Username)
+	isUserExist, err := database.IsUserExist(s.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ type Login struct {
 func (s *Login) Handle(c *gin.Context) (any, error) {
 	log.Printf("[login/Handle]: %v %v\n", s.Username, s.Password)
 	//user := &User{}
-	isUserExist, err := database.DB.IsUserExist(s.Username)
+	isUserExist, err := database.IsUserExist(s.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -57,19 +57,16 @@ func (s *Login) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("User not exist")
 	}
 
-	password, _ := database.DB.QueryPassword(s.Username)
-	id, _ := database.DB.QueryID(s.Username)
+	user, err := database.GetUserByUsername(s.Username)
+	if err != nil {
+		return nil, err
+	}
 
-	if password != s.Password {
+	if user.Password != s.Password {
 		log.Printf("[Login]:password is wrong\n")
 		return nil, errors.New("password is not exist")
 	}
 
-	user := &models.User{
-		ID:       id,
-		Username: s.Username,
-		Password: s.Password,
-	}
 	var jwtToken string
 	jwtToken, err = jwt.CreateToken(user.ID, user.Username)
 
