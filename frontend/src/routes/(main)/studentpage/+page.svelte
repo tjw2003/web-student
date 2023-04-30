@@ -1,23 +1,15 @@
 <script lang="ts">
   import { afterNavigate, goto } from "$app/navigation";
   import axios from "axios";
+  import { get, postByJson } from "../../../lib/axios";
 
   let courses: any = [];
 
-  function selectright() {
-    alert("你好，成功选课");
-  }
-
-  function getcourse() {
-    axios
-      .get("http://127.0.0.1:9090/api/course", {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("prj-jwt"),
-        },
-      })
-      .then(function (response) {
-        console.log(response.data);
-        courses = response.data.data;
+  function getCourse() {
+    get("/api/course")
+      .then((res) => {
+        console.log(res.data);
+        courses = res.data.data;
       })
       .catch((err) => {
         console.log(err);
@@ -30,24 +22,15 @@
 
   function selectCourse() {
     // let username = localStorage.getString("username");
-    axios
-      .post(
-        "http://127.0.0.1:9090/api/course/selectCourse",
-        JSON.stringify({
-          // username,
-          coursename,
-          credit,
-          teacher,
-        }),
-        {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("prj-jwt"),
-          },
-        }
-      )
+    postByJson("/api/course/selectCourse", {
+      // username,
+      coursename,
+      credit,
+      teacher,
+    })
       .then((res) => {
         console.log("[then]: ", res);
-        selectright();
+        alert("你好，成功选课");
       })
       .catch((err) => {
         console.log("[error]: ", err);
@@ -68,22 +51,13 @@
   import { onMount } from "svelte";
 
   onMount(() => {
-    getcourse()
-  })
+    getCourse();
+  });
 </script>
 
 <div class="bg-white border-t p-2">
-  <Button on:click={getcourse}>刷新</Button>
+  <Button on:click={getCourse}>刷新</Button>
 </div>
-<!-- <div> -->
-  <!-- svelte-ignore missing-declaration -->
-  <!-- <button
-    on:click={getcourse}
-    class="bg-red-500 hover:bg-red-700 p-1 rounded shadow"
-  >
-    查看所有课程
-  </button>
-</div> -->
 
 <div>
   <Table>
@@ -122,11 +96,3 @@
     </TableBody>
   </Table>
 </div>
-
-<style>
-  h1 {
-    color: black;
-    font-family: "Comic Sans MS", cursive;
-    font-size: 4em;
-  }
-</style>

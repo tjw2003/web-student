@@ -2,26 +2,18 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
 
-  import { Button } from "flowbite-svelte";
   import {
     Navbar,
     NavBrand,
     NavLi,
     NavUl,
     NavHamburger,
-    Dropdown,
-    DropdownItem,
-    Chevron,
-    DropdownDivider,
   } from "flowbite-svelte";
 
-//   $: activeUrl = ;
-//   $: console.log(activeUrl)
-  $: active1 = ($page.url.pathname == '/studentpage')
 </script>
 
 <Navbar>
-  <NavBrand href="/">
+  <NavBrand href="/login">
     <span
       class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"
     >
@@ -44,7 +36,7 @@
       on:click={() => {
         localStorage.removeItem("prj-jwt");
         localStorage.removeItem("prj-id");
-        goto("/");
+        goto("/login");
       }}>退出</NavLi
     >
   </NavUl>

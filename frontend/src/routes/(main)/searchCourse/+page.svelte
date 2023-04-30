@@ -17,19 +17,8 @@
 
   function getselectCourse() {
     // let username = localStorage.getString('username')
-    axios
-    .get(
-        "http://127.0.0.1:9090/api/course/getselectCourse",
-        // JSON.stringify({
-        //   username,
-        // }),
-      {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("prj-jwt"),
-        }
-      }
-
-      )
+    get(
+        "/api/course/getselectCourse")
       .then((res) => {
         console.log("[then]: ", res);
         courses = res.data.data;
@@ -48,6 +37,7 @@
     TableHeadCell,
   } from "flowbite-svelte";
   import { onMount } from 'svelte';
+    import { get } from '../../../lib/axios';
 </script>
 
 <div class="bg-white border-t p-2">
@@ -72,11 +62,3 @@
     </TableBody>
   </Table>
 </div>
-
-<style>
-    h1 {
-      color: black;
-      font-family: "Comic Sans MS", cursive;
-      font-size: 2em;
-    }
-  </style>
