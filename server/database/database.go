@@ -29,8 +29,8 @@ func InitializeTables() {
 	}
 	err = DB.CreateTable("select_courses",
 		"id SERIAL",
-		"user_id REFERENCES users",
-		"course_id REFERENCES courses",
+			     "user_id INT REFERENCES users(id)",
+			     "course_id INT REFERENCES courses(id)",
 	)
 	if err != nil {
 		log.Panicln("Failed to create table select_courses")
